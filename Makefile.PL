@@ -18,6 +18,7 @@ WriteMakefile(
 
 	PREREQ_PM => {
 		'Kelp' => '>= 1',
+		'Kelp::Module::Symbiosis' => '>= 1',
 		'Plack::App::WebSocket' => '>= 0.08',
 		'Try::Tiny' => 0,
 	},
