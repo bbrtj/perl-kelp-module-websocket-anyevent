@@ -6,7 +6,7 @@ use Kelp::Module::WebSocket::AnyEvent::Connection;
 use Carp qw(croak carp cluck);
 use Try::Tiny;
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 attr "-serializer";
 attr "-connections" => sub { {} };
