@@ -23,6 +23,15 @@ WriteMakefile(
 		'Try::Tiny' => 0,
 	},
 
+	META_MERGE => {
+		resources => {
+			license => 'https://dev.perl.org/licenses',
+			homepage => 'https://metacpan.org/release/Kelp-Module-WebSocket-AnyEvent',
+			bugtracker => 'https://github.com/brtastic/perl-kelp-module-websocket-anyevent/issues',
+			repository => 'https://github.com/brtastic/perl-kelp-module-websocket-anyevent',
+		},
+	},
+
 	ABSTRACT_FROM => 'lib/Kelp/Module/WebSocket/AnyEvent.pm',
 	AUTHOR => 'Bartosz Jarzyna <brtastic.dev@gmail.com>',
 	LICENSE => 'perl',
