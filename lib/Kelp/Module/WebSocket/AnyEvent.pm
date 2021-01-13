@@ -1,12 +1,12 @@
 package Kelp::Module::WebSocket::AnyEvent;
 
+our $VERSION = '1.02';
+
 use Kelp::Base qw(Kelp::Module::Symbiosis::Base);
 use Plack::App::WebSocket;
 use Kelp::Module::WebSocket::AnyEvent::Connection;
 use Carp qw(croak carp cluck);
 use Try::Tiny;
-
-our $VERSION = '1.01';
 
 attr "-serializer";
 attr "-connections" => sub { {} };
