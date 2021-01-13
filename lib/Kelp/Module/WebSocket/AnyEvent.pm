@@ -112,9 +112,9 @@ Kelp::Module::WebSocket::AnyEvent - AnyEvent websocket server integration with K
 =head1 SYNOPSIS
 
 	# in config
-	modules => [qw(Symbiosis Websocket::AnyEvent)],
+	modules => [qw(Symbiosis WebSocket::AnyEvent)],
 	modules_init => {
-		"Websocket::AnyEvent" => {
+		"WebSocket::AnyEvent" => {
 			serializer => "json",
 		},
 	},
@@ -172,7 +172,7 @@ Registers a $handler (coderef) for websocket $event (string). Handler will be pa
 
 =over 2
 
-=item * L<Dancer2::Plugin::Websocket>, same integration for Dancer2 framework this module was inspired by
+=item * L<Dancer2::Plugin::WebSocket>, same integration for Dancer2 framework this module was inspired by
 
 =item * L<Kelp>, the framework
 
