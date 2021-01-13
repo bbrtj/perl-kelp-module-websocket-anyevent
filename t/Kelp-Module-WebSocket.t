@@ -10,6 +10,7 @@ use AnyEvent::WebSocket::Client;
 use AnyEvent;
 
 {
+
 	package WebSocket::Test;
 	use Kelp::Less;
 
@@ -19,13 +20,17 @@ use AnyEvent;
 	my $closed;
 	my $ws = app->websocket;
 	$ws->add(open => sub { shift->send("opened") });
-	$ws->add(message => sub {
-		my ($conn, $message) = @_;
-		$conn->send("got message: $message");
-	});
-	$ws->add(close => sub {
-		$closed = 1;
-	});
+	$ws->add(
+		message => sub {
+			my ($conn, $message) = @_;
+			$conn->send("got message: $message");
+		}
+	);
+	$ws->add(
+		close => sub {
+			$closed = 1;
+		}
+	);
 
 	app->symbiosis->mount("/ws", $ws);
 
@@ -64,36 +69,43 @@ my @expected_messages = (
 );
 
 my $client = AnyEvent::WebSocket::Client->new;
-$client->connect("ws://127.0.0.1:" . $server->port . "/ws")->cb(sub {
-	our $connection = eval { shift->recv };
-	if ($@) {
-		fail $@;
-		return;
-	}
-
-	$connection->on(each_message => sub {
-		my ($connection, $message) = @_;
-		if (@expected_messages) {
-			my $t = shift @expected_messages;
-			is $message->{body}, $t->[0], "message matches";
+$client->connect("ws://127.0.0.1:" . $server->port . "/ws")->cb(
+	sub {
+		our $connection = eval { shift->recv };
+		if ($@) {
+			fail $@;
+			return;
 		}
-		if (!@expected_messages) {
-			$connection->close;
-			note "Closing connection";
-			$condvar->send;
+
+		$connection->on(
+			each_message => sub {
+				my ($connection, $message) = @_;
+				if (@expected_messages) {
+					my $t = shift @expected_messages;
+					is $message->{body}, $t->[0], "message matches";
+				}
+				if (!@expected_messages) {
+					$connection->close;
+					note "Closing connection";
+					$condvar->send;
+				}
+			}
+		);
+
+		for my $t (@expected_messages) {
+			$connection->send($t->[1])
+				if defined $t->[1];
 		}
-	});
-
-	for my $t (@expected_messages) {
-		$connection->send($t->[1])
-			if defined $t->[1];
 	}
-});
+);
 
-my $w = AnyEvent->timer(after => 5, cb => sub {
-	fail "event loop was not stopped";
-	$condvar->send;
-});
+my $w = AnyEvent->timer(
+	after => 5,
+	cb => sub {
+		fail "event loop was not stopped";
+		$condvar->send;
+	}
+);
 
 $condvar->recv;
 undef $w;
@@ -109,7 +121,7 @@ my @cases = (
 for my $case_ref (@cases) {
 	my $request = HTTP::Request->new(GET => $case_ref->[0]);
 	my $response = $agent->request($request);
-	ok 0+ $response->is_success == 0+ $case_ref->[1], "$case_ref->[0] request ok";
+	ok 0 + $response->is_success == 0 + $case_ref->[1], "$case_ref->[0] request ok";
 	if (defined $case_ref->[2]) {
 		is $response->decoded_content, $case_ref->[2], "returns valid response";
 	}

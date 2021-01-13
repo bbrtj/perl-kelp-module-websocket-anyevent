@@ -11,9 +11,15 @@ use Try::Tiny;
 attr "-serializer";
 attr "-connections" => sub { {} };
 
-attr "on_open" => sub { sub {} };
-attr "on_close" => sub { sub {} };
-attr "on_message" => sub { sub {} };
+attr "on_open" => sub {
+	sub { }
+};
+attr "on_close" => sub {
+	sub { }
+};
+attr "on_message" => sub {
+	sub { }
+};
 attr "on_error";
 
 # This function is here to work around Twiggy bug that is silencing errors
@@ -23,7 +29,8 @@ sub _trap(&)
 	my ($block) = @_;
 	try {
 		$block->();
-	} catch {
+	}
+	catch {
 		cluck $_;
 		die $_;
 	};
@@ -35,6 +42,7 @@ sub psgi
 
 	my $conn_max_id = 0;
 	my $websocket = Plack::App::WebSocket->new(
+
 		# on_error - optional
 		(defined $self->on_error ? (on_error => sub { $self->on_error->(@_) }) : ()),
 
