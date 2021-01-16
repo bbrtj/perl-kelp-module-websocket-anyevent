@@ -1,6 +1,6 @@
 package Kelp::Module::WebSocket::AnyEvent;
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 use Kelp::Base qw(Kelp::Module::Symbiosis::Base);
 use Plack::App::WebSocket;
@@ -35,6 +35,8 @@ sub _trap(&)
 		die $_;
 	};
 }
+
+sub name { 'websocket' }
 
 sub psgi
 {
@@ -120,22 +122,31 @@ Kelp::Module::WebSocket::AnyEvent - AnyEvent websocket server integration with K
 =head1 SYNOPSIS
 
 	# in config
+
 	modules => [qw(Symbiosis WebSocket::AnyEvent)],
 	modules_init => {
 		"WebSocket::AnyEvent" => {
+			mount => '/ws',
 			serializer => "json",
 		},
 	},
 
+
 	# in application's build method
+
 	my $ws = $self->websocket;
 	$ws->add(message => sub {
 		my ($conn, $msg) = @_;
 		$conn->send({received => $msg});
 	});
-	$self->symbiosis->mount("/ws" => $ws);
+
+	# can also be mounted like this, if not specified in config
+	$self->symbiosis->mount("/ws" => $ws);         # by module object
+	$self->symbiosis->mount("/ws" => 'websocket'); # by name
+
 
 	# in psgi script
+
 	$app = MyApp->new;
 	$app->run_all;
 
@@ -145,6 +156,14 @@ Kelp::Module::WebSocket::AnyEvent - AnyEvent websocket server integration with K
 This is a module that integrates a websocket instance into Kelp using L<Kelp::Module::Symbiosis>. To run it, a non-blocking Plack server based on AnyEvent is required, like L<Twiggy>. All this module does is wrap L<Plack::App::WebSocket> instance in Kelp's module, introduce a method to get this instance in Kelp and integrate it into running alongside Kelp using Symbiosis. An instance of this class will be available in Kelp under the I<websocket> method.
 
 =head1 METHODS
+
+=head2 name
+
+	sig: name($self)
+
+Reimplemented from L<Kelp::Module::Symbiosis::Base>. Returns a name of a module that can be used in C<< $symbiosis->loaded >> hash or when mounting by name. The return value is constant string I<'websocket'>.
+
+Requires Symbiosis version I<1.10> for name mounting to function.
 
 =head2 connections
 
