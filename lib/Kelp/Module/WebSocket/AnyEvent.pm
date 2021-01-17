@@ -71,13 +71,13 @@ sub psgi
 						try {
 							$message = $s->decode($message);
 						} catch {
-							my $err = $_ || 'unknown error';
+							$err = $_ || 'unknown error';
 						};
 					}
 
 					_trap {
 						if ($err) {
-							$self->on_malformed_message($conn, $message, $err);
+							$self->on_malformed_message->($conn, $message, $err);
 						} else {
 							$self->on_message->($conn, $message);
 						}
@@ -254,6 +254,10 @@ B<Optional>. This is where you handle all the incoming websocket messages. If a 
 	message => sub ($connection, $message, $error) { ... }
 
 B<Optional>. This is where you handle the incoming websocket messages which could not be unserialized by a serializer. By default, an exception will be thrown, effectively the connection will be closed.
+
+If Kelp JSON module is initialized with I<'allow_nonref'> flag then this event will never occur.
+
+C<$error> will not be likely be fit for end user message, as it will contain file names and line numbers.
 
 =head2 close
 

@@ -74,7 +74,16 @@ sub twiggy_test
 	undef $w;
 
 	is scalar @messages, 0, 'all messages sent ok';
-	is_deeply \@results, $expected_results_ref, 'results ok';
+	is scalar @results, scalar @{$expected_results_ref}, 'results count ok';
+	for my $data (@{$expected_results_ref}) {
+		my $result = shift @results;
+		if (ref $data eq 'Regexp') {
+			like $result, $data, 'message like ok';
+		}
+		else {
+			is $result, $data, 'message is ok';
+		}
+	}
 
 	return $server;
 }

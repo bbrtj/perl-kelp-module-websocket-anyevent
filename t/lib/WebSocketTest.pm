@@ -19,19 +19,26 @@ sub build {
 		$closed ? "yes" : "no";
 	});
 
-	$ws->add(open => sub { shift->send("opened") });
+	$ws->add(open => sub { shift->send("opened") })
+		unless $self->mode eq 'serializer_json';
 
 	$ws->add(
 		message => sub {
 			my ($conn, $message) = @_;
-			$conn->send("got message: $message");
+			if (ref $message eq ref {}) {
+				$conn->send({got => $message});
+			}
+			else {
+				$message = $self->json->encode($message);
+				$conn->send("got message: $message");
+			}
 		}
 	);
 
 	$ws->add(
 		malformed_message => sub {
 			my ($conn, $message, $err) = @_;
-			$conn->send("got error: $err ($message)");
+			$conn->send({error => $err, message => $message});
 		}
 	);
 

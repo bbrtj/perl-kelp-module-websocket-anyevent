@@ -18,8 +18,8 @@ my @messages = (
 
 my @expected_results = (
 	'opened',
-	'got message: test',
-	'got message: websocket operating',
+	'got message: "test"',
+	'got message: "websocket operating"',
 );
 
 # will do all the websocket testing
