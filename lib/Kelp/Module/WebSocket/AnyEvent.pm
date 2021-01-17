@@ -155,6 +155,12 @@ Kelp::Module::WebSocket::AnyEvent - AnyEvent websocket server integration with K
 
 This is a module that integrates a websocket instance into Kelp using L<Kelp::Module::Symbiosis>. To run it, a non-blocking Plack server based on AnyEvent is required, like L<Twiggy>. All this module does is wrap L<Plack::App::WebSocket> instance in Kelp's module, introduce a method to get this instance in Kelp and integrate it into running alongside Kelp using Symbiosis. An instance of this class will be available in Kelp under the I<websocket> method.
 
+=head1 METHODS INTRODUCED TO KELP
+
+=head2 websocket
+
+Returns the instance of this class (Kelp::Module::WebSocket::AnyEvent).
+
 =head1 METHODS
 
 =head2 name
@@ -170,6 +176,17 @@ Requires Symbiosis version I<1.10> for name mounting to function.
 	sig: connections($self)
 
 Returns a hashref containing all available L<Kelp::Module::WebSocket::AnyEvent::Connection> instances (open connections) keyed by their unique id. An id is autoincremented from 1 and guaranteed not to change and not to be replaced by a different connection unless the server restarts.
+
+A connection holds some additional data that can be used to hold custom data associated with that connection:
+
+	# set / get data fields (it's an empty hash ref by default)
+	$connection->data->{internal_id} = $internal_id;
+
+	# get the entire hash reference
+	$hash_ref = $connection->data;
+
+	# replace the hash reference with something else
+	$connection->data($something_else);
 
 =head2 middleware
 
@@ -194,6 +211,54 @@ Same as psgi, but wraps the instance in all wanted middlewares.
 	sig: add($self, $event, $handler)
 
 Registers a $handler (coderef) for websocket $event (string). Handler will be passed an instance of L<Kelp::Module::WebSocket::AnyEvent::Connection> and an incoming message. $event can be either one of: I<open close message error>. You can only specify one handler for each event type.
+
+=head1 EVENTS
+
+All event handlers must be code references.
+
+=head2 open
+
+	open => sub ($new_connection, $env) { ... }
+
+B<Optional>. Called when a new connection opens. A good place to set up its variables.
+
+=head2 message
+
+	message => sub ($connection, $message) { ... }
+
+B<Optional>. This is where you handle all the incoming websocket messages. If a serializer is specified, C<$message> will already be unserialized.
+
+=head2 malformed_message
+
+	message => sub ($connection, $message, $error) { ... }
+
+B<Optional>. This is where you handle the incoming websocket messages which could not be unserialized by a serializer. By default, an exception will be thrown, effectively the connection will be closed.
+
+=head2 close
+
+	close => sub ($connection) { ... }
+
+B<Optional>. Called when the connection is closing.
+
+=head2 error
+
+	error => $psgi_app
+
+B<Optional>. The code reference should be a psgi application. It will be called if an error occurs and the websocket connection have to be closed.
+
+=head1 CONFIGURATION
+
+=head2 middleware, middleware_init
+
+See L<Kelp::Module::Symbiosis::Base/middleware, middleware_init>.
+
+=head2 mount
+
+See L<Kelp::Module::Symbiosis::Base/mount>.
+
+=head2 serializer
+
+Contains the name of the method that will be called to obtain an instance of serializer. Kelp instance must have that method registered. It must be able to C<< ->encode >> and C<< ->decode >>. Should also throw exception on error.
 
 =head1 SEE ALSO
 
