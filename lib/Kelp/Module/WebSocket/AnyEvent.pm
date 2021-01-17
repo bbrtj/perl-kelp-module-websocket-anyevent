@@ -83,6 +83,9 @@ sub add
 {
 	my ($self, $type, $sub) = @_;
 
+	croak "websocket handler for $type is not a code reference"
+		unless ref $sub eq 'CODE';
+
 	$type = "on_$type";
 	my $setter = $self->can($type);
 	croak "unknown websocket event `$type`"

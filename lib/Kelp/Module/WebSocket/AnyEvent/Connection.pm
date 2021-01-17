@@ -16,6 +16,7 @@ sub new
 	my $class = shift;
 	my $self = $class->SUPER::new(@_);
 	$self->manager->connections->{$self->id} = $self;
+	weaken($self->{manager});
 	weaken($self->{connection});
 	return $self;
 }
