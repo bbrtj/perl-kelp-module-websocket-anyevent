@@ -255,7 +255,7 @@ B<Optional>. This is where you handle all the incoming websocket messages. If a 
 
 	message => sub ($connection, $message, $error) { ... }
 
-B<Optional>. This is where you handle the incoming websocket messages which could not be unserialized by a serializer. By default, an exception will be thrown, effectively the connection will be closed.
+B<Optional>. This is where you handle the incoming websocket messages which could not be unserialized by a serializer. By default, an exception will be re-thrown, and effectively the connection will be closed.
 
 If Kelp JSON module is initialized with I<'allow_nonref'> flag then this event will never occur.
 
