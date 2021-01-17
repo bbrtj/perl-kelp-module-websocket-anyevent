@@ -4,9 +4,11 @@ use strict;
 use warnings;
 use parent 'Kelp';
 
+use Test::More;
+
 sub build {
 	my $self = shift;
-	my $closed;
+	my $closed = 0;
 
 	my $r = $self->routes;
 	my $ws = $self->websocket;
@@ -16,11 +18,20 @@ sub build {
 	});
 
 	$r->add("/closed" => sub {
-		$closed ? "yes" : "no";
+		$closed
 	});
 
-	$ws->add(open => sub { shift->send("opened") })
-		unless $self->mode eq 'serializer_json';
+	my $last_connected = 1;
+	$ws->add(open => sub {
+		my $conn = shift;
+		$conn->data->{counter} = 0;
+
+		isa_ok $conn, 'Kelp::Module::WebSocket::AnyEvent::Connection';
+		isa_ok $conn->manager, 'Kelp::Module::WebSocket::AnyEvent';
+		is $conn->id, $last_connected++, 'autoincrement id ok - ' . $conn->id;
+
+		$conn->send("opened")
+	}) unless $self->mode eq 'serializer_json';
 
 	$ws->add(
 		message => sub {
@@ -29,8 +40,13 @@ sub build {
 				$conn->send({got => $message});
 			}
 			else {
-				$message = $self->json->encode($message);
-				$conn->send("got message: $message");
+				if ($message eq 'count') {
+					$conn->send($conn->data->{counter}++);
+				}
+				else {
+					$message = $self->json->encode($message);
+					$conn->send("got message: $message");
+				}
 			}
 		}
 	);
@@ -44,7 +60,7 @@ sub build {
 
 	$ws->add(
 		close => sub {
-			$closed = 1;
+			$closed += 1;
 		}
 	);
 

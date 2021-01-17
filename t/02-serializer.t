@@ -23,7 +23,7 @@ my @expected_results = (
 );
 
 # will do all the websocket testing
-my $server = twiggy_test($app, \@messages, \@expected_results);
+my $server = twiggy_test($app, \@messages, \@expected_results, 3);
 undef $server;
 
 done_testing;

@@ -12,25 +12,31 @@ use WebSocketTest;
 my $app = WebSocketTest->new(mode => 'no_serializer');
 my @messages = (
 	undef,
-	"test",
-	"websocket operating",
+	'test',
+	'websocket operating',
+	'count',
+	'count',
+	'count'
 );
 
 my @expected_results = (
 	'opened',
 	'got message: "test"',
 	'got message: "websocket operating"',
+	0,
+	1,
+	2
 );
 
 # will do all the websocket testing
-my $server = twiggy_test($app, \@messages, \@expected_results);
+my $server = twiggy_test($app, \@messages, \@expected_results, 5);
 
 my $agent = LWP::UserAgent->new;
 my $base_addr = "http://127.0.0.1:" . $server->port;
 my @cases = (
 	["$base_addr/kelp", 1, "kelp still there"],
 	[$base_addr, 0],
-	["$base_addr/closed", 1, "yes"],
+	["$base_addr/closed", 1, 5],
 );
 
 for my $case_ref (@cases) {
