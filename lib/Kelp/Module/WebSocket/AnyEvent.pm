@@ -20,6 +20,9 @@ attr "on_close" => sub {
 attr "on_message" => sub {
 	sub { }
 };
+attr "on_malformed_message" => sub {
+	sub { die pop }
+};
 attr "on_error";
 
 # This function is here to work around Twiggy bug that is silencing errors
@@ -62,10 +65,23 @@ sub psgi
 			$conn->connection->on(
 				message => sub {
 					my ($orig_conn, $message) = @_;
+					my $err;
+
 					if (my $s = $self->get_serializer) {
-						$message = $s->decode($message);
+						try {
+							$message = $s->decode($message);
+						} catch {
+							my $err = $_ || 'unknown error';
+						};
 					}
-					_trap { $self->on_message->($conn, $message) };
+
+					_trap {
+						if ($err) {
+							$self->on_malformed_message($conn, $message, $err);
+						} else {
+							$self->on_message->($conn, $message);
+						}
+					};
 				},
 				finish => sub {
 					_trap { $self->on_close->($conn) };
@@ -117,6 +133,8 @@ sub build
 
 1;
 __END__
+
+=pod
 
 =head1 NAME
 
