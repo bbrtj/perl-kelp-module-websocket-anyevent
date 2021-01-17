@@ -50,7 +50,8 @@ sub twiggy_test
 				my $err;
 				try {
 					$this_connection = $arg->recv
-				} catch {
+				}
+				catch {
 					my $err = $_;
 					fail $err;
 				};
@@ -63,8 +64,9 @@ sub twiggy_test
 						push @{$data->[1]}, $message->{body};
 
 						if (@{$data->[0]}) {
-							$connection->send(shift @{$data->[0]})
-						} else {
+							$connection->send(shift @{$data->[0]});
+						}
+						else {
 							$connection->close;
 							note "Closing connection";
 							if (--$open_count == 0) {

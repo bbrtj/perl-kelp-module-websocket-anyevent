@@ -70,7 +70,8 @@ sub psgi
 					if (my $s = $self->get_serializer) {
 						try {
 							$message = $s->decode($message);
-						} catch {
+						}
+						catch {
 							$err = $_ || 'unknown error';
 						};
 					}
@@ -78,7 +79,8 @@ sub psgi
 					_trap {
 						if ($err) {
 							$self->on_malformed_message->($conn, $message, $err);
-						} else {
+						}
+						else {
 							$self->on_message->($conn, $message);
 						}
 					};

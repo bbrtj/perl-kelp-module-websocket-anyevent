@@ -6,32 +6,39 @@ use parent 'Kelp';
 
 use Test::More;
 
-sub build {
+sub build
+{
 	my $self = shift;
 	my $closed = 0;
 
 	my $r = $self->routes;
 	my $ws = $self->websocket;
 
-	$r->add("/kelp" => sub {
-		"kelp still there";
-	});
+	$r->add(
+		"/kelp" => sub {
+			"kelp still there";
+		}
+	);
 
-	$r->add("/closed" => sub {
-		$closed
-	});
+	$r->add(
+		"/closed" => sub {
+			$closed;
+		}
+	);
 
 	my $last_connected = 1;
-	$ws->add(open => sub {
-		my $conn = shift;
-		$conn->data->{counter} = 0;
+	$ws->add(
+		open => sub {
+			my $conn = shift;
+			$conn->data->{counter} = 0;
 
-		isa_ok $conn, 'Kelp::Module::WebSocket::AnyEvent::Connection';
-		isa_ok $conn->manager, 'Kelp::Module::WebSocket::AnyEvent';
-		is $conn->id, $last_connected++, 'autoincrement id ok - ' . $conn->id;
+			isa_ok $conn, 'Kelp::Module::WebSocket::AnyEvent::Connection';
+			isa_ok $conn->manager, 'Kelp::Module::WebSocket::AnyEvent';
+			is $conn->id, $last_connected++, 'autoincrement id ok - ' . $conn->id;
 
-		$conn->send("opened")
-	}) unless $self->mode eq 'serializer_json';
+			$conn->send("opened");
+		}
+	) unless $self->mode eq 'serializer_json';
 
 	$ws->add(
 		message => sub {
