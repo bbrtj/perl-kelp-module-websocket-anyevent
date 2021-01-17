@@ -1,6 +1,6 @@
 package Kelp::Module::WebSocket::AnyEvent::Connection;
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 use Kelp::Base;
 use Carp;

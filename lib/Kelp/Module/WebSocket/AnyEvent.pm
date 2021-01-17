@@ -1,6 +1,6 @@
 package Kelp::Module::WebSocket::AnyEvent;
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 use Kelp::Base qw(Kelp::Module::Symbiosis::Base);
 use Plack::App::WebSocket;
